@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=10">
+  <title>Userverwaltung</title>
+</head>
+<body>
+
+<div id="loginSection">
+  <h2>Login</h2>
+  <form id="loginForm">
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" required>
+    <br>
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required>
+    <br>
+    <button type="button" onclick="login()">Login</button>
+  </form>
+</div>
+
+<div id="homeSection" style="display: none;">
+  <h2>Welcome to the User Management System!</h2>
+  <button onclick="logout()">Logout</button>
+  <button type="button" onclick="changeCredentials()">Change Credentials</button>
+</div>
+
+<div id="adminSection" style="display: none;">
+  <h2>User Administration</h2>
+  <table id="userTable">
+  </table>
+  <br>
+  <button onclick="addUser()">Add User</button>
+  <br><br>
+  <button onclick="deleteUser()">Delete User</button>
+  <button onclick="changeUserRole()">Change Role</button>
+</div>
+
+<script>
+const users = [
+  { username: 'admin', password: 'admin123', role: 'admin' },
+  { username: 'user1', password: 'pass123', role: 'user' },
+];
+
+let currentUser = null;
+
+function login() {
+  const username = document.getElementById('username').value;
+  const password = document.getElementById('password').value;
+
+  const user = users.find(u => u.username === username && u.password === password);
+
+  if (user) {
+    currentUser = user;
+    document.getElementById('loginSection').style.display = 'none';
+    document.getElementById('homeSection').style.display = 'block';
+
+    if (currentUser.role === 'admin') {
+      document.getElementById('adminSection').style.display = 'block';
+      displayUsers();
+    }
+  } else {
+    alert('Invalid username or password');
+  }
+}
+
+function logout() {
+  currentUser = null;
+  document.getElementById('loginSection').style.display = 'block';
+  document.getElementById('homeSection').style.display = 'none';
+  document.getElementById('adminSection').style.display = 'none';
+}
+
+function displayUsers() {
+  const table = document.getElementById('userTable');
+  table.innerHTML = '<tr><th>Username</th><th>Password</th><th>Role</th></tr>';
+
+  for (const user of users) {
+    const row = table.insertRow();
+    row.insertCell(0).textContent = user.username;
+    row.insertCell(1).textContent = user.password;
+    row.insertCell(2).textContent = user.role;
+  }
+}
+
+function changeCredentials() {
+  const newUsername = prompt('Enter new username:');
+  const newPassword = prompt('Enter new password:');
+
+  if (newUsername && newPassword) {
+    currentUser.username = newUsername;
+    currentUser.password = newPassword;
+    alert('Credentials changed successfully!');
+  } else {
+    alert('Invalid input. Please provide both username and password.');
+  }
+}
+function addUser() {
+  if (currentUser.role === 'admin') {
+    const newUsername = prompt('Enter new username:');
+    const newPassword = prompt('Enter new password:');
+    const newRole = prompt('Enter new role (admin/user):');
+
+    if (newUsername && newPassword && (newRole === 'admin' || newRole === 'user')) {
+      const newUser = { username: newUsername, password: newPassword, role: newRole };
+      users.push(newUser);
+      displayUsers();
+      alert('User added successfully!');
+    } else {
+      alert('Invalid input. Please provide valid username, password, and role.');
+    }
+  } else {
+    alert('You do not have the necessary permissions to add users.');
+  }
+}
+
+function deleteUser() {
+  if (currentUser.role === 'admin') {
+    const usernameToDelete = prompt('Enter username to delete:');
+
+    if (usernameToDelete) {
+      const indexToDelete = users.findIndex(u => u.username === usernameToDelete);
+
+      if (indexToDelete !== -1) {
+        users.splice(indexToDelete, 1);
+        displayUsers();
+        alert('User deleted successfully!');
+      } else {
+        alert('User not found.');
+      }
+    } else {
+      alert('Invalid input. Please provide a username.');
+    }
+  } else {
+    alert('You do not have the necessary permissions to delete users.');
+  }
+}
+function changeUserRole() {
+  if (currentUser.role === 'admin') {
+    const usernameToChange = prompt('Enter username to change role:');
+    const newRole = prompt('Enter new role (admin/user):');
+
+    if (usernameToChange && (newRole === 'admin' || newRole === 'user')) {
+      const userToChange = users.find(u => u.username === usernameToChange);
+
+      if (userToChange) {
+        userToChange.role = newRole;
+        displayUsers();
+        alert('User role changed successfully!');
+      } else {
+        alert('User not found.');
+      }
+    } else {
+      alert('Invalid input. Please provide valid username and role.');
+    }
+  } else {
+    alert('You do not have the necessary permissions to change user roles.');
+  }
+}
+</script>
+
+</body>
+</html>
